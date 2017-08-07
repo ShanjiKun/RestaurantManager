@@ -1,0 +1,16 @@
+# Set to your Apple Developer Account and password here, you'll not be asked for them while deploying
+ENV["APPLE_ID"] = "pixa.mobile@gmail.com"
+# ENV["FASTLANE_PASSWORD"] = ""
+
+ENV["SLACK_URL"] = "https://hooks.slack.com/services/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"
+ENV["GITHUB_API_TOKEN"] = "ce2f58f7112ee8c11272ec82af24c764ef39cfda"
+ENV["CRASHLYTICS_API_TOKEN"] = "6bc93a79879fb4da253cba1c1a0c6aac5ad639ff"
+ENV["CRASHLYTICS_BUILD_SECRET"] = "13b7442d252813aa747ff8aef2f1574c727d7858f579068e4341b7f3c83e2097"
+
+ENV["CERT_USERNAME"] = ENV["APPLE_ID"]
+ENV["SIGH_USERNAME"] = ENV["APPLE_ID"]
+ENV["PILOT_APPLE_ID"] = ENV["APPLE_ID"]
+ENV["DELIVER_USERNAME"] = ENV["APPLE_ID"]
+
+ENV["SCAN_OUTPUT_DIRECTORY"] = "./fastlane/output/unittest/"
+ENV["SNAPSHOT_OUTPUT_DIRECTORY"] = "./fastlane/output/screenshots/"

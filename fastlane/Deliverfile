@@ -1,0 +1,17 @@
+###################### More Options ######################
+# If you want to have even more control, check out the documentation
+# https://github.com/fastlane/fastlane/blob/master/deliver/Deliverfile.md
+
+
+###################### Automatically generated ######################
+# Feel free to remove the following line if you use fastlane (which you should)
+
+app_identifier "com.pixa.learningreactnative" # The bundle identifier of your app
+# username "pixa.mobile@gmail.com" # your Apple ID user
+team_id "X4X668DYKL"  # iTunes Connect Team ID (by running pilot list command)
+
+force true
+automatic_release false
+submit_for_review false
+
+metadata_path "./fastlane/metadata"

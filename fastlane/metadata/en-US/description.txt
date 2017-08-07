@@ -1,0 +1,23 @@
+ARTO is the newest way to discover and buy (affordable) art straight from your mobile phone. By partnering with international Galleries, Museums and Events like The Affordable Art Fair, The Met and Rijksmuseum, ARTO provides you the highest variety of international artworks and prints.
+
+Don’t Search for Art, We Will Recommend It To You 
+Using Artificial Intelligence, we built an “Art Recommendation Engine” which will recommend artworks based on your taste and preferences. We kept it super simple. Once you open the app you will see your “Art Stream”. In this stream you can indicate per artwork if you like it or not by swiping left or right. The more you swipe the better we learn your art taste and we will recommend artworks that match your taste on the fly! 
+
+Stream Art To Your TV
+We have a unique feature that allows you to change your TV into a digital canvas! You can stream every artwork in high res to your TV using Chromecast or Apple TV. 
+
+More than 20,000 Art Images
+We have all types of art, including contemporary masters like Banksy and Warhol but also  classical masters like Rembrandt and Monet. We are pretty sure we have something you like, as we currently have more than 20,000 art images.
+
+Features
+- Swipe art images to the left and right to indicate if you like something or not
+- Tap on an image to see title, artist name, description, size and price
+- Click on “buy” to buy or request the price
+- Zoom in on art images to see more details (all images are high res)
+- Share artworks you like on Facebook
+- Send a question about the artwork to the artist, gallery, museum
+- See artworks similar to the artwork you have liked
+- Tap on artist name to see picture, bio and more artworks from that artist
+- View your “Liked” art in 1 playlist
+- View Art Playlist grouped per Style, Gallery, Museum or Event
+- Stream high res art images to your TV using Chromecast or Apple TV

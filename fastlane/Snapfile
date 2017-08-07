@@ -1,0 +1,40 @@
+# Uncomment the lines below you want to change by removing the # in the beginning
+
+# A list of devices you want to take the screenshots from
+devices([
+  "iPhone 6s Plus"
+#   "iPhone 6s",
+#   "iPhone 6 Plus",
+#   "iPhone 6",
+#   "iPhone 5s",
+#   "iPhone 5",
+#   "iPhone 4s"
+])
+
+languages([
+  "en-US"
+])
+
+# Need this for make screenshot on simulator to match Apple Marketing Materials http://www.apple.com/ios/
+# launch_arguments (["GCC_PREPROCESSOR_DEFINITIONS '$(inherited) SNAPSHOT=1'"])
+# custom_args "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) SNAPSHOT=1'"
+
+configuration "Debug"
+
+derived_data_path "./fastlane/output/snapshot/derived_data"
+
+# Clear all previously generated screenshots before creating new ones
+clear_previous_screenshots true
+clean true
+erase_simulator true
+reinstall_app true
+
+stop_after_first_error false
+number_of_retries 1
+skip_open_summary true
+
+# Choose which project/workspace to use
+workspace "./RestaurantManager.xcworkspace"
+
+# For more information about all available options run
+# snapshot --help

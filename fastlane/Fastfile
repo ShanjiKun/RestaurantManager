@@ -1,0 +1,389 @@
+fastlane_version "2.3.1"
+REQUIRED_XCODE_VERSION = “8.3.3”
+default_platform :ios
+
+platform :ios do
+  before_all do
+#     git_pull(only_tags: true)
+  end
+
+  after_all do
+#     push_git_tags
+  end
+
+  lane :test do
+    scan
+  end
+
+  def change_log_since_last_tag
+    # http://git-scm.com/docs/pretty-formats
+    # <short hash> <commit title>
+    return changelog_from_git_commits(pretty: '%h %s')
+  end
+
+  def version_string(version_number, build_number)
+    "#{version_number} (#{build_number})"
+  end
+
+  def tag_name(build_type, version_number, build_number)
+    "#{build_type}/#{version_number}/#{build_number}"
+  end
+
+  def load_keys(options)
+    from_local = options[:local]
+    begin
+      if from_local
+        puts "Loading environment variables from keys_local file..."
+        import("keys_local")
+      else
+        puts "Loading environment variables from keys file..."
+        import("keys")
+      end
+    rescue => exception
+      if from_local
+        UI.error("fastlane/keys_local file not found. To use this Fastfile, copy fastlane/keys.template into fastlane/keys_local and fill in the values")
+      else
+        UI.error("fastlane/keys file not found. To use this Fastfile, copy fastlane/keys.template into fastlane/keys and fill in the values")
+      end
+      raise exception
+    end
+  end
+
+  private_lane :verify_xcode_version do
+    ensure_xcode_version(version: REQUIRED_XCODE_VERSION)
+  end
+
+desc "Build and submit a pre-release to Fabric"
+  lane :pre_release do |options|
+    load_keys(options)
+
+    only_build = options[:only_build]
+
+    unless only_build
+      sh "git fetch"
+      sh "git checkout master"
+      sh "git pull"
+
+#       ensure_git_status_clean
+      ensure_git_branch(branch: 'master')
+
+	  version_number = last_git_tag.strip
+#       version_number = options[:version_number] || get_version_number
+#       bump_version_number = !!options[:version_number]
+#       if bump_version_number
+#         increment_version_number(version_number: version_number)
+#       end
+
+#       build_number = increment_build_number
+	  build_number = get_build_number
+      complete_version_number = version_string(version_number, build_number)
+
+#       commit_version_bump(
+#         message: "Bump version to #{complete_version_number}",
+#         xcodeproj: "ARTO.xcodeproj",
+#         force: true
+#       )
+
+      change_log = change_log_since_last_tag
+      notify_testers = false unless options[:notify_testers]
+    end
+
+    sigh(
+      adhoc: true,
+      output_path: "./fastlane/output/profiles"
+    )
+
+    if ENV['CIRCLE_ARTIFACTS']
+        puts "Found. ENV[\"CIRCLE_ARTIFACTS\"] = #{ENV['CIRCLE_ARTIFACTS']}"
+    else
+        ENV['CIRCLE_ARTIFACTS'] = "./fastlane/output"
+        puts "ENV[\"CIRCLE_ARTIFACTS\"] not found. Set to #{ENV['CIRCLE_ARTIFACTS']}"
+	end
+
+    # Run tests
+# 	scan(
+# 	  scheme: "ARTO",
+# 	  output_directory: File.join(ENV['CIRCLE_ARTIFACTS'], "/unittests/")
+# 	)
+
+    # Build ipa file
+    gym(
+      scheme: "RestaurantManager",
+      export_method: "ad-hoc",
+      configuration: "Release",
+      xcargs: "PROVISIONING_PROFILE_SPECIFIER='com.pixa.learningreactnative Adhoc Distribution'"
+    )
+
+# 	# Capture screenshots
+# 	snapshot(
+# 	  scheme: "ARTO",
+# 	  output_directory: File.join(ENV['CIRCLE_ARTIFACTS'], "/screenshots/")
+# 	)
+
+    unless only_build
+#       set_github_release(
+#         repository_name: "Artogallery/ios",
+#         api_token: ENV["GITHUB_API_TOKEN"],
+#         name: complete_version_number,
+#         tag_name: tag_name("feature-fastlane-deployment", version_number, build_number),
+#         commitish: git_branch,
+#         description: change_log,
+#         is_prerelease: true
+#       )
+
+		# Send build to Fabric & notify testers
+      crashlytics(
+        api_token: ENV["CRASHLYTICS_API_TOKEN"],
+        build_secret: ENV["CRASHLYTICS_BUILD_SECRET"],
+        notes: change_log,
+        groups:"temp-staff",
+		notifications: true
+      )
+
+		# Notify to slack
+      slack(
+        message: "New pre-release of ARTO #{complete_version_number}\nRelease notes:\n #{change_log}",
+        channel: "#ios"
+      )
+
+      clean_build_artifacts
+      push_to_git_remote(
+        tags: false
+      )
+      rocket
+    end
+  end
+
+desc "Build and submit a release to App Store"
+  lane :production do |options|
+    load_keys(options)
+
+    only_build = options[:only_build]
+
+    unless only_build
+      sh "git fetch"
+      sh "git checkout master"
+      sh "git pull"
+
+      # ensure_git_status_clean
+      ensure_git_branch(branch: 'master')
+
+      # Get version from git tag and set to project
+#       tag_list_str = sh "git ls-remote --tags | sort -t '/' -k 3 | awk -F/ '{ print $3 }'"
+#       tag_list = tag_list_str.split(/\n+/)
+#       tag_list = tag_list.grep(/^v((\*)|([0-9]+(\.((\*)|([0-9]+(\.((\*)|([0-9]+)))?)))?))$/)
+#
+#       for tag_name in 0...tag_list.length
+#         print tag_name, ": ", tag_list[tag_name], "\n"
+#       end
+#
+#       version_number = tag_list.last.strip
+#
+# 	  version_number = sh "git describe --tags $(git rev-list --tags='v[0-9].[0-9].[0-9]' --max-count=1)"
+# 	  version_number = version_number.strip
+#
+# 	  Remove 'v' from tag
+# 	  if (version_number.start_with?("v"))
+# 	    version_number = version_number[1..-1]
+# 	  end
+
+	  version_number = get_version_number;
+
+	  puts "version_number = #{version_number}"
+
+# 	  sh "cd .. && agvtool new-marketing-version #{version_number} && cd -"
+
+	  # Do not increase build number
+	  build_number = get_build_number
+      complete_version_number = version_string(version_number, build_number)
+
+#       commit_version_bump(
+#         message: "Bump version to #{complete_version_number}",
+#         xcodeproj: "ARTO.xcodeproj",
+#         force: true
+#       )
+
+      change_log = change_log_since_last_tag
+      notify_testers = false unless options[:notify_testers]
+    end
+
+    sigh(
+      force: true,
+      adhoc: false,
+      output_path: "./fastlane/output/profiles"
+    )
+
+    if ENV['CIRCLE_ARTIFACTS']
+        puts "Found. ENV[\"CIRCLE_ARTIFACTS\"] = #{ENV['CIRCLE_ARTIFACTS']}"
+    else
+        ENV['CIRCLE_ARTIFACTS'] = "./fastlane/output"
+        puts "ENV[\"CIRCLE_ARTIFACTS\"] not found. Set to #{ENV['CIRCLE_ARTIFACTS']}"
+        sh "rm -rf \"./fastlane/output/snapshot/derived_data\""
+	end
+
+    # Run tests
+# 	scan(
+# 	  scheme: "ARTO",
+# 	  output_directory: File.join(ENV['CIRCLE_ARTIFACTS'], "/unittests/")
+# 	)
+
+    # Build ipa file
+    gym(
+      scheme: "RestaurantManager",
+      export_method: "app-store",
+      configuration: "Release",
+      xcargs: "PROVISIONING_PROFILE_SPECIFIER='com.pixa.learningreactnative AppStore'"
+    )
+
+#   Temporarily comment out coz it's not in use
+# 	# Capture screenshots
+# 	snapshot(
+# 	  scheme: "ARTO",
+# 	  output_directory: File.join(ENV['CIRCLE_ARTIFACTS'], "/screenshots/")
+# 	)
+
+    deliver(
+      app_version: version_number,
+      skip_screenshots: true
+#       screenshots_path: File.join(ENV['CIRCLE_ARTIFACTS'], "/screenshots/")
+    )
+
+    unless only_build
+	  # Send build to Fabric without notiyfing testers (just for crash report)
+      crashlytics(
+        api_token: ENV["CRASHLYTICS_API_TOKEN"],
+        build_secret: ENV["CRASHLYTICS_BUILD_SECRET"],
+        notes: changelog_from_git_commits(commits_count: '1'),
+#         groups:"arto-staff",
+#  		notifications: true
+      )
+
+	  # Notify to slack
+      slack(
+        message: "New production v#{version_number} of ARTO pushed to App Store.\nRelease notes:\n #{change_log}",
+        channel: "#ios"
+      )
+
+      clean_build_artifacts
+      push_to_git_remote(
+        tags: false
+      )
+      rocket
+    end
+  end
+
+  desc "Build and submit dev build to Fabric"
+  lane :fabric_dev do |options|
+    load_keys(options)
+
+    only_build = options[:only_build]
+
+    unless only_build
+      sh "git fetch"
+      sh "git checkout develop"
+      sh "git pull"
+
+#       ensure_git_status_clean
+	  ensure_git_branch(branch: 'develop')
+
+      version_number = options[:version_number] || get_version_number
+      bump_version_number = !!options[:version_number]
+      if bump_version_number
+        increment_version_number(version_number: version_number)
+      end
+
+      # Increase build number for development build
+      build_number = increment_build_number
+      complete_version_number = version_string(version_number, build_number)
+
+      commit_version_bump(
+        message: "Bump version to #{complete_version_number}",
+        xcodeproj: "RestaurantManager.xcodeproj",
+        force: true
+      )
+
+#       change_log = change_log_since_last_tag
+      notify_testers = false unless options[:notify_testers]
+    end
+
+    sigh(
+      app_identifier: "com.pixa.learningreactnative",
+      adhoc: true,
+      output_path: "./fastlane/output/profiles"
+    )
+
+    if ENV['CIRCLE_ARTIFACTS']
+        puts "Found. ENV[\"CIRCLE_ARTIFACTS\"] = #{ENV['CIRCLE_ARTIFACTS']}"
+    else
+        ENV['CIRCLE_ARTIFACTS'] = "./fastlane/output"
+        puts "ENV[\"CIRCLE_ARTIFACTS\"] not found. Set to #{ENV['CIRCLE_ARTIFACTS']}"
+	end
+
+    # Run tests
+# 	scan(
+# 	  scheme: "ARTODev",
+# 	  output_directory: File.join(ENV['CIRCLE_ARTIFACTS'], "/unittests/")
+# 	)
+
+#     update_project_codesigning(path: "ARTO.xcodeproj",use_automatic_signing: false)
+    # Build ipa file
+    gym(
+      scheme: "RestaurantManager",
+      export_method: "ad-hoc",
+      configuration: "Release",
+#       codesigning_identity: "iPhone Distribution: Arto Gallery Pte Ltd (2UAGY5CHQ2)",
+#       xcargs: "PROVISIONING_PROFILE_SPECIFIER='gallery.arto.artodev AdHoc' PROVISIONING_PROFILE='a3d1d5fd-0714-4cdc-85f1-2f25d3411373'"
+    )
+
+#     update_project_codesigning(path: "ARTO.xcodeproj",use_automatic_signing: true)
+
+	# Capture screenshots
+# 	snapshot(
+# 	  scheme: "ARTODev",
+# 	  output_directory: File.join(ENV['CIRCLE_ARTIFACTS'], "/screenshots/")
+# 	)
+
+    unless only_build
+
+	  # Send build to Fabric & notify testers
+      crashlytics(
+        api_token: ENV["CRASHLYTICS_API_TOKEN"],
+        build_secret: ENV["CRASHLYTICS_BUILD_SECRET"],
+        notes: changelog_from_git_commits(commits_count: '1'),
+        groups:"temp-staff",
+ 		notifications: true
+      )
+
+      slack(
+        message: "New build of ARTO Dev v#{complete_version_number}",
+        channel: "#ios"
+      )
+
+      clean_build_artifacts
+      push_to_git_remote(
+        tags: false
+      )
+      rocket
+    end
+  end
+
+  lane :screenshots do
+    load_keys
+
+    snapshot
+  end
+
+  lane :update_metadata do
+    load_keys
+
+    deliver
+  end
+
+  lane :code_gen do
+    root_directory = "#{File.expand_path(File.dirname(__FILE__))}/../"
+
+    sdk_path = sh("xcodebuild -version -sdk iphoneos9.2 Path")
+
+    sh("#{root_directory}/Pods/R.swift/rswift -p \"#{root_directory}/Fabric.xcodeproj\" -t Fabric --bundleIdentifier io.fabric.ios --productModuleName Fabric --buildProductsDir \"#{root_directory}\" --developerDir \"#{root_directory}\" --sourceRoot \"#{root_directory}\" --sdkRoot \"#{sdk_path}\" \"#{root_directory}/Fabric/\"")
+  end
+end

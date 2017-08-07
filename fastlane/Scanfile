@@ -1,0 +1,61 @@
+devices [
+#   "iPhone 5 (8.1)",
+#   "iPhone 5 (8.2)",
+#   "iPhone 5 (8.3)",
+#   "iPhone 5 (8.4)",
+
+#   "iPhone 5 (9.0)",
+#   "iPhone 5 (9.1)",
+#   "iPhone 5 (9.2)",
+#   "iPhone 5 (9.3)",
+
+#   "iPhone 5s (8.1)",
+#   "iPhone 5s (8.2)",
+#   "iPhone 5s (8.3)",
+#   "iPhone 5s (8.4)",
+
+#   "iPhone 5s (9.0)",
+#   "iPhone 5s (9.1)",
+#   "iPhone 5s (9.2)",
+#   "iPhone 5s (9.3)",
+
+#   "iPhone 6 (8.1)",
+#   "iPhone 6 (8.2)",
+#   "iPhone 6 (8.3)",
+#   "iPhone 6 (8.4)",
+
+#   "iPhone 6 (9.0)",
+#   "iPhone 6 (9.1)",
+#   "iPhone 6 (9.2)",
+#   "iPhone 6 (9.3)",
+
+#   "iPhone 6 Plus (8.1)",
+#   "iPhone 6 Plus (8.2)",
+#   "iPhone 6 Plus (8.3)",
+#   "iPhone 6 Plus (8.4)",
+
+#   "iPhone 6 Plus (9.0)",
+#   "iPhone 6 Plus (9.1)",
+#   "iPhone 6 Plus (9.2)",
+#   "iPhone 6 Plus (9.3)",
+#   "iPhone 6s (9.0)",
+#   "iPhone 6s (9.1)",
+#   "iPhone 6s (9.2)",
+#   "iPhone 6s (9.3)",
+#   "iPhone 6s Plus (9.0)",
+#   "iPhone 6s Plus (9.1)",
+#   "iPhone 6s Plus (9.2)",
+  "iPhone 6s Plus (9.3)"
+]
+
+xcargs 'OTHER_SWIFT_FLAGS="$(inherited) -DUNIT_TEST"'
+configuration "Release"
+
+derived_data_path "./fastlane/output/scan/derived_data"
+buildlog_path "./fastlane/output/scan/"
+
+clean true
+skip_build true
+# code_coverage true
+skip_slack true
+slack_only_on_failure true

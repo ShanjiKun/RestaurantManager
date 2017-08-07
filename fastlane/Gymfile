@@ -1,0 +1,4 @@
+
+# use_legacy_build_api true
+clean true
+output_directory "./fastlane/output/ipa"

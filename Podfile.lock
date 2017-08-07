@@ -1,0 +1,19 @@
+PODS:
+  - Crashlytics (3.8.5):
+    - Fabric (~> 1.6.3)
+  - Fabric (1.6.12)
+  - Socket.IO-Client-Swift (10.2.0)
+
+DEPENDENCIES:
+  - Crashlytics
+  - Fabric
+  - Socket.IO-Client-Swift (~> 10.2.0)
+
+SPEC CHECKSUMS:
+  Crashlytics: dfbae35ef22ca189240d230ad501feea4ee85d2d
+  Fabric: f050464eac45a2ce5a8e6e6a07e977c0df32fe28
+  Socket.IO-Client-Swift: ecd7fe4d2746a7557e71c2d6e95e23e3be31ddd1
+
+PODFILE CHECKSUM: 21880ab6717d9cc572f57f887350dcbcb607c5ba
+
+COCOAPODS: 1.1.1
